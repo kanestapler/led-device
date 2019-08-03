@@ -18,6 +18,6 @@
   "homepage": "https://github.com/kanestapler/led-device#readme",
   "dependencies": {
     "johnny-five": "^1.2.0",
-    "raspi-io": "^5.1.1"
+    "raspi-io": "^10.0.2"
   }
 }
