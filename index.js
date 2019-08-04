@@ -17,7 +17,7 @@ process.on('SIGINT', function() {
 var offset = 0
 setInterval(function() {
   for (var i = 0; i < NUM_LEDS; i += 5) {
-    pixelData[i] = rgb2Int(255, 255, 0)
+    pixelData[i] = colorwheel(i)
   }
 
   offset = (offset + 1) % 256
