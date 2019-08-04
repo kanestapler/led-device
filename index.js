@@ -1,28 +1,45 @@
-const Raspi = require('raspi-io').RaspiIO
-const five = require('johnny-five')
-const pixel = require('node-pixel')
+var ws281x = require('rpi-ws281x-native')
 
-const board = new five.Board({
-  io: new Raspi(),
-})
+var NUM_LEDS = 144
+var pixelData = new Uint32Array(NUM_LEDS)
 
-let strip = null
+ws281x.init(NUM_LEDS, { gpio: 7 })
 
-board.on('ready', () => {
-  //   new five.Led('GPIO7').strobe()
-  strip = new pixel.Strip({
-    board: this,
-    controller: 'FIRMATA',
-    strips: [{ pin: 'GPIO7', length: 144 }],
-    gamma: 2.8,
-  })
-
-  // Just like DOM-ready for web developers.
-  strip.on('ready', function() {
-    // Set the entire strip to pink.
-    strip.color('#903')
-
-    // Send instructions to NeoPixel.
-    strip.show()
+// ---- trap the SIGINT and reset before exit
+process.on('SIGINT', function() {
+  ws281x.reset()
+  process.nextTick(function() {
+    process.exit(0)
   })
 })
+
+// ---- animation-loop
+var offset = 0
+setInterval(function() {
+  for (var i = 0; i < NUM_LEDS; i += 5) {
+    pixelData[i] = rgb2Int(255, 255, 0)
+  }
+
+  offset = (offset + 1) % 256
+  ws281x.render(pixelData)
+}, 1000 / 30)
+
+console.log('Press <ctrl>+C to exit.')
+
+// rainbow-colors, taken from http://goo.gl/Cs3H0v
+function colorwheel(pos) {
+  pos = 255 - pos
+  if (pos < 85) {
+    return rgb2Int(255 - pos * 3, 0, pos * 3)
+  } else if (pos < 170) {
+    pos -= 85
+    return rgb2Int(0, pos * 3, 255 - pos * 3)
+  } else {
+    pos -= 170
+    return rgb2Int(pos * 3, 255 - pos * 3, 0)
+  }
+}
+
+function rgb2Int(r, g, b) {
+  return ((r & 0xff) << 16) + ((g & 0xff) << 8) + (b & 0xff)
+}
