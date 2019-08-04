@@ -5,11 +5,12 @@ const { turnOff, rainbowMode, defaultMode } = require('./ledController')
 const firestore = firebase.firestore()
 
 const LIGHT_ID = 'iA9aSpCpVqcELnm0yo6A'
-
+console.log('Starting')
 firestore
   .collection('lights')
   .doc(LIGHT_ID)
   .onSnapshot(doc => {
+    console.log('Light data recieved')
     const lightData = doc.data()
     updateLight(lightData)
   })
