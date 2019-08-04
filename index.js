@@ -13,16 +13,12 @@ process.on('SIGINT', function() {
   })
 })
 
-// ---- animation-loop
-var offset = 0
-setInterval(function() {
-  for (var i = 0; i < NUM_LEDS; i += 5) {
-    pixelData[i] = colorwheel(i)
-  }
+for (var i = 0; i < NUM_LEDS; i += 1) {
+  pixelData[i] = colorwheel(i)
+}
 
-  offset = (offset + 1) % 256
-  ws281x.render(pixelData)
-}, 1000 / 30)
+offset = (offset + 1) % 256
+ws281x.render(pixelData)
 
 console.log('Press <ctrl>+C to exit.')
 
