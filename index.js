@@ -1,40 +1,39 @@
-var ws281x = require('rpi-ws281x-native')
+const { firebase } = require('./firebase')
+const { getLEDArray } = require('./conversion')
+const { turnOff, rainbowMode, defaultMode } = require('./ledController')
 
-var NUM_LEDS = 144
-var pixelData = new Uint32Array(NUM_LEDS)
+const firestore = firebase.firestore()
 
-ws281x.init(NUM_LEDS)
+const LIGHT_ID = 'iA9aSpCpVqcELnm0yo6A'
 
-// ---- trap the SIGINT and reset before exit
-process.on('SIGINT', function() {
-  ws281x.reset()
-  process.nextTick(function() {
-    process.exit(0)
+firestore
+  .collection('lights')
+  .doc(LIGHT_ID)
+  .onSnapshot(doc => {
+    const lightData = doc.data()
+    updateLight(lightData)
   })
-})
 
-for (var i = 0; i < NUM_LEDS; i += 1) {
-  pixelData[i] = colorwheel(i)
-}
-
-ws281x.render(pixelData)
-
-console.log('Press <ctrl>+C to exit.')
-
-// rainbow-colors, taken from http://goo.gl/Cs3H0v
-function colorwheel(pos) {
-  pos = 255 - pos
-  if (pos < 85) {
-    return rgb2Int(255 - pos * 3, 0, pos * 3)
-  } else if (pos < 170) {
-    pos -= 85
-    return rgb2Int(0, pos * 3, 255 - pos * 3)
-  } else {
-    pos -= 170
-    return rgb2Int(pos * 3, 255 - pos * 3, 0)
+const updateLight = light => {
+  if (!light.power) {
+    console.log('off')
+    turnOff()
+    exitProcess()
+  }
+  if (light.mode === 'default') {
+    const LEDArray = getLEDArray(light.colors, light.numberOfLEDs)
+    console.log('default')
+    console.log(LEDArray)
+    defaultMode(LEDArray, light.numberOfLEDs, light.brightness)
+    exitProcess()
+  } else if (light.mode === 'party') {
+  } else if (light.mode === 'rainbow') {
+    console.log('rainbow')
+    rainbowMode(light.numberOfLEDs, light.brightness)
+    exitProcess()
   }
 }
 
-function rgb2Int(r, g, b) {
-  return ((r & 0xff) << 16) + ((g & 0xff) << 8) + (b & 0xff)
+const exitProcess = () => {
+  process.exit(0)
 }
