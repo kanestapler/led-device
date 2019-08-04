@@ -17,7 +17,6 @@ for (var i = 0; i < NUM_LEDS; i += 1) {
   pixelData[i] = colorwheel(i)
 }
 
-offset = (offset + 1) % 256
 ws281x.render(pixelData)
 
 console.log('Press <ctrl>+C to exit.')
