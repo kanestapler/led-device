@@ -18,7 +18,7 @@ firestore
 const updateLight = light => {
   if (!light.power) {
     console.log('off')
-    turnOff()
+    turnOff(light.numberOfLEDs)
     exitProcess()
   }
   if (light.mode === 'default') {
