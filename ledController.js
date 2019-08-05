@@ -1,13 +1,7 @@
 var ws281x = require('rpi-ws281x-native')
 
 function defaultMode(ledArray, numberOfLEDs, brightness) {
-  // var pixelData = new Uint32Array(numberOfLEDs)
-
   ws281x.init(numberOfLEDs)
-
-  // ledArray.forEach(led => {
-  //   pixelData[i] = rgb2Int(led.red, led.green, led.blue)
-  // })
 
   const pixelData = ledArray.map(led => {
     return rgb2Int(led.red, led.green, led.blue)
